@@ -1,5 +1,5 @@
 import { prisma } from "../database/prisma";
-import { TCreateTasksBody, TCreateTasksResponse, TReadTasks, TUpdateTasks } from "../schemas/tasks.schemas";
+import { TCreateTasksBody, TCreateTasksResponse, TReadTasks, TUpdateTasks, readTasksSchema } from "../schemas/tasks.schemas";
 
 export class TasksServices {
 
@@ -10,24 +10,34 @@ export class TasksServices {
     }
 
     async findTasks(name?: string) {
+        if (name) {
+            const data = await prisma.task.findMany({
+                where: {
+                    category: {
+                        name: { contains: name, mode: "insensitive" }
+                    }
+                },
+                include: { category: true }
+            });
+
+            return readTasksSchema.array().parse(data)
+        }
+
         const data = await prisma.task.findMany({
-            where: {
-                category: {
-                    name: name
-                }
-            }
+            include: { category: true }
         });
 
-        return data;
+        return readTasksSchema.array().parse(data)
 
     }
 
     async findOneTask(id: number) {
         const data = await prisma.task.findFirst({
-            where: { id }
+            where: { id },
+            include: { category: true }
         })
 
-        return data;
+        return readTasksSchema.parse(data);
     }
 
     async update(id: number, body: TUpdateTasks) {
