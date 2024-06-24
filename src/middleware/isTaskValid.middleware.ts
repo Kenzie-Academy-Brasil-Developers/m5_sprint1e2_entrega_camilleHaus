@@ -8,8 +8,11 @@ export class IsTaskValid {
         const id = req.params.id;
 
         const task = await prisma.task.findFirst({
-            where: { id: Number(id) }
+            where: { id: Number(id) },
+            include: { user: true }
         })
+
+        res.locals.task = task
 
         if (!task) {
             throw new AppError(404, "Task not found")

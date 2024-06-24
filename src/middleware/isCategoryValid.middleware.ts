@@ -8,8 +8,11 @@ export class IsCategoryValid {
         const id = req.params.id;
 
         const category = await prisma.category.findFirst({
-            where: { id: Number(id) }
+            where: { id: Number(id) },
+            include: { user: true}
         })
+
+        res.locals.category = category
 
         if (!category) {
             throw new AppError(404, "Category not found")

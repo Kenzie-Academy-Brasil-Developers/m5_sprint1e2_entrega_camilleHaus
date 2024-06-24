@@ -1,6 +1,8 @@
+import { injectable } from "tsyringe";
 import { prisma } from "../database/prisma";
-import { TCreateTasksBody, TCreateTasksResponse, TReadTasks, TUpdateTasks, readTasksSchema } from "../schemas/tasks.schemas";
+import { TCreateTasksBody, TCreateTasksResponse, TUpdateTasks, readTasksSchema } from "../schemas/tasks.schemas";
 
+@injectable()
 export class TasksServices {
 
     async create(body: TCreateTasksBody) {
@@ -9,7 +11,7 @@ export class TasksServices {
         return data as TCreateTasksResponse;
     }
 
-    async findTasks(name?: string) {
+    async findTasks(userId: number ,name?: string) {
         if (name) {
             const data = await prisma.task.findMany({
                 where: {
@@ -19,12 +21,13 @@ export class TasksServices {
                 },
                 include: { category: true }
             });
-
+             
             return readTasksSchema.array().parse(data)
         }
 
         const data = await prisma.task.findMany({
-            include: { category: true }
+            include: { category: true },
+            where: { userId }
         });
 
         return readTasksSchema.array().parse(data)
