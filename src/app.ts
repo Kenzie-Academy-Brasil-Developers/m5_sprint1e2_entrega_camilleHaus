@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import "express-async-errors";
+import cors from "cors";
 import express, { json } from "express";
 import helmet from "helmet";
 import { categoryRouter } from "./routes/categories.routes";
@@ -14,6 +15,8 @@ const PORT = 3000;
 app.use(helmet())
 
 app.use(json());
+
+app.use(cors())
 
 app.use("/tasks", tasksRouter);
 app.use("/categories", categoryRouter);
